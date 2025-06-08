@@ -27,7 +27,6 @@
 
 <div class="text-text mx-auto p-4">
 	{#if modelToEdit}
-		<h1 class="mb-4 text-2xl font-semibold">Edit Model: {modelToEdit.name}</h1>
 		<ModelForm {modelToEdit} onSave={handleModelSaved} />
 	{:else if modelName && !initialLoadDone}
 		<p>Loading model data...</p>

@@ -64,9 +64,9 @@ export function addModel(newModelData: Model): Model {
     return newModel;
 }
 
-export function updateModel(updatedModel: Model): void {
+export function updateModel(originalName: string, updatedModel: Model): void {
     appDataStore.update((data) => {
-        const modelIndex = data.models.findIndex((m) => m.name === updatedModel.name);
+        const modelIndex = data.models.findIndex((m) => m.name === originalName);
         if (modelIndex > -1) {
             const newModels = [...data.models];
             newModels[modelIndex] = updatedModel;
