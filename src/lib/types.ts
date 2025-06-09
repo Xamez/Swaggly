@@ -3,6 +3,7 @@ export type Format = 'int32' | 'int64' | 'float' | 'double' | 'byte' | 'binary' 
 export type Type = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object';
 export type ParameterIn = 'query' | 'header' | 'path' | 'cookie';
 export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
+export type JSONValue = string | number | boolean | null | { [x: string]: JSONValue } | JSONValue[];
 
 export const availableMediaTypes: MediaType[] = ['application/json', 'application/xml', 'text/plain', 'text/html'];
 export const availableFormats: Format[] = [
@@ -21,7 +22,7 @@ export const availableParameterIns: ParameterIn[] = ['query', 'header', 'path', 
 export const availableMethods: Method[] = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
 
 export interface ReferenceObject {
-	$ref: string; // e.g., '#/components/schemas/User'
+	$ref: string;
 }
 
 export interface SchemaObject {
@@ -29,16 +30,16 @@ export interface SchemaObject {
 	format?: Format;
 	title?: string;
 	description?: string;
-	example?: any;
-	default?: any;
+	example?: JSONValue;
+	default?: JSONValue;
 	nullable?: boolean;
 	deprecated?: boolean;
 	minLength?: number;
 	maxLength?: number;
-	pattern?: string; // Regex
+	pattern?: string;
 	minimum?: number;
 	maximum?: number;
-	enum?: any[];
+	enum?: JSONValue[];
 	items?: SchemaOrReference;
 	minItems?: number;
 	maxItems?: number;
@@ -71,12 +72,12 @@ export interface Parameter {
 	deprecated?: boolean;
 	allowEmptyValue?: boolean;
 	schema?: SchemaOrReference;
-	example?: any;
+	example?: JSONValue;
 	examples?: {
 		[exampleName: string]: {
 			summary?: string;
 			description?: string;
-			value?: any;
+			value?: JSONValue;
 			externalValue?: string;
 			$ref?: string;
 		};
@@ -89,7 +90,7 @@ export interface RequestBody {
 	content: {
 		[mediaType: string]: {
 			schema: SchemaOrReference;
-			example?: any;
+			example?: JSONValue;
 		};
 	};
 }
@@ -100,7 +101,7 @@ export interface Response {
 	content?: {
 		[mediaType: string]: {
 			schema: SchemaOrReference;
-			example?: any;
+			example?: JSONValue;
 		};
 	};
 }
@@ -120,4 +121,12 @@ export interface Route {
 export interface AppData {
 	models: Model[];
 	routes: Route[];
+}
+
+export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+
+export interface Notification {
+	id: number;
+	message: string;
+	type: NotificationType;
 }

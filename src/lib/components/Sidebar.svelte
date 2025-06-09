@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getModels, getRoutes } from '$lib/dataStore';
+	import { models, routes } from '$lib/dataStore';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import FileStack from '@lucide/svelte/icons/file-stack';
@@ -9,9 +9,6 @@
 
 	let areModelsOpen = $state(false);
 	let areRoutesOpen = $state(false);
-
-	let models = $derived(getModels());
-	let routes = $derived(getRoutes());
 
 	function toggleModelsDropdown() {
 		areModelsOpen = !areModelsOpen;
@@ -22,9 +19,7 @@
 	}
 </script>
 
-<div
-	class="bg-background text-text m-2 flex h-screen w-[15vw] min-w-[250px] flex-col overflow-y-auto rounded-xl p-4 pl-8 font-semibold"
->
+<div class="bg-background text-text m-4 flex w-[15vw] min-w-[250px] flex-col overflow-y-auto rounded-xl p-4 font-semibold">
 	<ul class="space-y-2">
 		<li>
 			<button
@@ -43,7 +38,7 @@
 			</button>
 			{#if areModelsOpen}
 				<ul class="mt-1 space-y-1 pl-6">
-					{#if models.length === 0}
+					{#if $models.length === 0}
 						<li>
 							<a href="/models/create" class="text-accent-light hover:text-accent flex items-center py-1 text-sm">
 								<SquarePlus class="mr-2 inline-block" />
@@ -51,7 +46,7 @@
 							</a>
 						</li>
 					{:else}
-						{#each models as model (model.name)}
+						{#each $models as model (model.name)}
 							<li>
 								<a
 									href="/models/{model.name}"
@@ -90,7 +85,7 @@
 			</button>
 			{#if areRoutesOpen}
 				<ul class="mt-1 space-y-1 pl-6">
-					{#if routes.length === 0}
+					{#if $routes.length === 0}
 						<li>
 							<a href="/routes/create" class="text-accent-light hover:text-accent mt-1 flex items-center py-1 text-sm">
 								<SquarePlus class="mr-2 inline-block" />
@@ -98,11 +93,13 @@
 							</a>
 						</li>
 					{:else}
-						{#each routes as route (route.name)}
+						{#each $routes as route (route.name)}
 							<li>
 								<a
-									href="/routes/{route.name}"
-									class="hover:text-accent block py-1 text-sm {$page.url.pathname.startsWith(`/routes/${route.name}`)
+									href="/routes/{encodeURIComponent(route.name.trim())}"
+									class="hover:text-accent block py-1 text-sm {$page.url.pathname.startsWith(
+										`/routes/${encodeURIComponent(route.name.trim())}`
+									)
 										? 'text-accent font-bold'
 										: ''}"
 								>

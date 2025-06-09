@@ -1,11 +1,15 @@
 <script lang="ts">
-	import { addModel, getModels, updateModel } from '$lib/dataStore';
+	import { addModel, models, updateModel } from '$lib/dataStore';
 	import { initialPropertySchema, type PropertySchemaForForm } from '$lib/schemaDefinitions';
 	import { transformPropertyForPayload, transformSchemaToForm } from '$lib/schemaUtils';
 	import type { Model, ModelProperty } from '$lib/types';
 	import PropertyForm from './PropertyForm.svelte';
 
-	let { modelToEdit = undefined, onSave }: { modelToEdit?: Model; onSave: (model: Model) => void } = $props();
+	let {
+		modelToEdit = undefined,
+		onSave,
+		onDelete
+	}: { modelToEdit?: Model; onSave: (model: Model) => void; onDelete?: () => void } = $props();
 
 	let modelName = $state(modelToEdit?.name || '');
 	let modelDescription = $state(modelToEdit?.description || '');
@@ -29,7 +33,7 @@
 		}
 	});
 
-	let existingModelNames = $derived(getModels().map((m) => m.name));
+	let existingModelNames = $derived($models.map((m) => m.name));
 
 	function addProperty() {
 		properties.push({ name: '', schema: { ...initialPropertySchema, type: 'string' } });
@@ -60,44 +64,52 @@
 	}
 </script>
 
-<div class="bg-background text-text rounded-lg p-4 shadow">
-	<h2 class="text-text-heading mb-4 text-xl font-semibold">{modelToEdit ? 'Edit Model: ' + modelToEdit.name : 'Create New Model'}</h2>
+<div class="bg-background text-text rounded-lg p-4">
+	<h2 class="mb-4 text-center text-xl font-semibold">{modelToEdit ? 'Edit Model: ' + modelToEdit.name : 'Create New Model'}</h2>
 	<form onsubmit={handleSubmit}>
 		<div class="mb-4">
-			<label for="modelName" class="text-text-label mb-0.5 block text-sm font-medium">Model Name</label>
+			<label for="modelName" class="mb-0.5 block text-sm">Model Name</label>
 			<input
 				type="text"
 				id="modelName"
 				bind:value={modelName}
 				required
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="bg-background text-text placeholder-text-placeholder mt-1 block w-full rounded-md border px-3 py-2 sm:text-sm"
 			/>
 		</div>
 		<div class="mb-4">
-			<label for="modelDescription" class="text-text-label mb-0.5 block text-sm font-medium">Model Description</label>
+			<label for="modelDescription" class=" mb-0.5 block text-sm">Model Description</label>
 			<textarea
 				id="modelDescription"
 				bind:value={modelDescription}
 				rows="3"
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder mt-1 block min-h-[40px] w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="bg-background text-text placeholder-text-placeholder mt-1 block min-h-[40px] w-full rounded-md border px-3 py-2 sm:text-sm"
 			></textarea>
 		</div>
 
-		<h3 class="text-text-heading mb-2 text-lg font-medium">Properties</h3>
+		<h3 class="text-text-heading mb-2 text-lg">Properties</h3>
 		{#each properties as property, index (index)}
 			<PropertyForm {property} {index} {existingModelNames} onRemove={removeProperty} />
 		{/each}
 		<button
 			type="button"
 			onclick={addProperty}
-			class="text-accent hover:text-accent-dark mb-4 cursor-pointer text-sm font-medium transition-colors duration-150"
-			>+ Add Property</button
+			class="text-accent hover:text-accent-dark mb-4 cursor-pointer text-sm transition-colors duration-150">+ Add Property</button
 		>
 
-		<div class="mt-6 flex justify-end">
+		<div class="mt-6 flex justify-end gap-x-4">
+			{#if modelToEdit}
+				<button
+					type="button"
+					onclick={onDelete}
+					class="bg-danger hover:bg-danger-dark cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:outline-none"
+				>
+					Delete
+				</button>
+			{/if}
 			<button
 				type="submit"
-				class="bg-accent hover:bg-accent-dark focus:ring-accent-dark cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+				class="bg-accent hover:bg-secondary cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:outline-none"
 			>
 				{modelToEdit ? 'Save Changes' : 'Create Model'}
 			</button>

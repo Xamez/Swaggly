@@ -35,10 +35,7 @@ export const initialRouteSchema = {
 	method: 'get' as Method,
 	summary: undefined as string | undefined,
 	description: undefined as string | undefined,
-	tags_csv: undefined as string | undefined // For tags as a comma-separated string
-	// Parameters will be handled separately, perhaps in a more dynamic way in the form
-	// requestBody will also be handled separately
-	// responses will also be handled separately
+	tags_csv: undefined as string | undefined
 };
 
 export type RouteSchemaForForm = typeof initialRouteSchema;
