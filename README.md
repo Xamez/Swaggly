@@ -21,3 +21,10 @@ Swaggly is available online—no installation required!
 👉 **Try it now at: [https://swaggly.vercel.app/](https://swaggly.vercel.app/)**
 
 Just open the link above in your browser to start visually designing and editing your OpenAPI/Swagger schemas.
+
+## Contributing & Roadmap
+
+I'm open to Pull Requests! If you have ideas, improvements, or bug fixes, feel free to open a PR or issue.
+
+### Planned Features
+- **Swagger Preview:** Soon you'll be able to preview your OpenAPI/Swagger schema directly in the app.
