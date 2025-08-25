@@ -45,7 +45,7 @@
 				</button>
 				<button
 					onclick={handleConfirm}
-					class="bg-danger hover:bg-danger-dark rounded-md px-4 py-2 text-white transition-colors duration-150"
+					class="bg-danger hover:bg-danger-dark border border-danger hover:border-danger-dark rounded-md px-4 py-2 text-white transition-colors duration-150"
 				>
 					Confirm
 				</button>

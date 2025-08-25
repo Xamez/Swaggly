@@ -5,25 +5,25 @@
 	}>();
 </script>
 
-<div class="mt-2 border-t pt-2">
-	<p class="text-text-label mb-1 text-sm font-medium">Numeric Constraints:</p>
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+<div class="border-t border-white pt-3">
+	<p class="text-xs font-medium text-text-label mb-2">Numeric Constraints</p>
+	<div class="grid grid-cols-2 gap-3">
 		<div>
-			<label for="minimum" class="text-text-label mb-0.5 block text-sm font-medium">Minimum</label>
+			<label class="block text-xs text-text-label mb-1" for="minimum">Minimum</label>
 			<input
-				type="number"
 				id="minimum"
+				type="number"
 				bind:value={minimum}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder appearance-textfield mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			/>
 		</div>
 		<div>
-			<label for="maximum" class="text-text-label mb-0.5 block text-sm font-medium">Maximum</label>
+			<label class="block text-xs text-text-label mb-1" for="maximum">Maximum</label>
 			<input
-				type="number"
 				id="maximum"
+				type="number"
 				bind:value={maximum}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder appearance-textfield mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			/>
 		</div>
 	</div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ParameterSchemaForForm } from '$lib/schemaDefinitions';
 	import { availableParameterIns, availableTypes } from '$lib/types';
+	import { ChevronDown, X } from '@lucide/svelte';
 
 	let {
 		parameter,
@@ -11,85 +12,128 @@
 		index: number;
 		onRemove: (index: number) => void;
 	} = $props();
+
+	let isExpanded = $state(false);
+	
+	function toggleExpanded() {
+		isExpanded = !isExpanded;
+	}
 </script>
 
-<div class="mb-4 rounded-lg border border-white p-4 shadow">
-	<div class="mb-2 flex items-center justify-between">
-		<h4 class="font-semibold">Parameter {index + 1}</h4>
+<div class="mb-2 rounded-lg border border-gray-200 bg-background p-3">
+	<div class="flex items-center gap-3">
 		<button
 			type="button"
-			onclick={() => onRemove(index)}
-			class="cursor-pointer rounded px-2 py-1 text-sm font-medium text-red-500 transition-colors duration-150 hover:bg-red-100 hover:text-red-700"
-			>Remove</button
+			onclick={toggleExpanded}
+			class="flex-shrink-0 w-6 h-6 rounded bg-background border border-gray-600 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer"
+			aria-label="Toggle parameter details"
 		>
-	</div>
+			<ChevronDown class="w-3.5 h-3.5 transition-transform duration-200 stroke-2 text-text-label {isExpanded ? 'rotate-180' : ''}" />
+		</button>
 
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		<div>
-			<label for="paramName-{index}" class="text-text-label mb-0.5 block text-sm font-medium">Name</label>
+		<div class="flex-1 min-w-0">
 			<input
 				type="text"
-				id="paramName-{index}"
 				bind:value={parameter.name}
 				required
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				placeholder="Parameter name"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			/>
 		</div>
-		<div>
-			<label for="paramIn-{index}" class="text-text-label mb-0.5 block text-sm font-medium">In</label>
+
+		<div class="w-20">
 			<select
-				id="paramIn-{index}"
 				bind:value={parameter.in}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-xs border border-gray-600 rounded bg-background focus:border-accent"
 			>
 				{#each availableParameterIns as inOpt (inOpt)}
 					<option value={inOpt}>{inOpt}</option>
 				{/each}
 			</select>
 		</div>
-	</div>
 
-	<div class="mt-4">
-		<label for="paramDesc-{index}" class="text-text-label mb-0.5 block text-sm font-medium">Description</label>
-		<textarea
-			id="paramDesc-{index}"
-			bind:value={parameter.description}
-			rows="2"
-			class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder mt-1 block min-h-[40px] w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
-		></textarea>
-	</div>
-
-	<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-		<div>
-			<label for="paramSchemaType-{index}" class="text-text-label mb-0.5 block text-sm font-medium">Schema Type</label>
+		<div class="w-24">
 			<select
-				id="paramSchemaType-{index}"
 				bind:value={parameter.schema_simple_type}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-xs border border-gray-600 rounded bg-background focus:border-accent"
 			>
-				{#each availableTypes.filter((t) => t !== 'object' && t !== 'array') as typeOpt (typeOpt)}
+				{#each availableTypes as typeOpt (typeOpt)}
 					<option value={typeOpt}>{typeOpt}</option>
 				{/each}
 			</select>
 		</div>
-	</div>
 
-	<div class="mt-4 flex items-center gap-4">
-		<label class="inline-flex items-center">
+		<label class="flex items-center text-xs">
 			<input
 				type="checkbox"
 				bind:checked={parameter.required}
-				class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
+				class="w-4 h-4 text-accent border-gray-600 rounded"
 			/>
-			<span class="text-text-label ml-2 text-sm">Required</span>
+			<span class="ml-1.5 text-text-label">Required</span>
 		</label>
-		<label class="inline-flex items-center">
+
+		<label class="flex items-center text-xs">
 			<input
 				type="checkbox"
-				bind:checked={parameter.deprecated}
-				class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
+				bind:checked={parameter.schema_nullable}
+				class="w-4 h-4 text-accent border-gray-600 rounded"
 			/>
-			<span class="text-text-label ml-2 text-sm">Deprecated</span>
+			<span class="ml-1.5 text-text-label">Nullable</span>
 		</label>
+		<button
+			type="button"
+			onclick={() => onRemove(index)}
+			class="flex-shrink-0 w-6 h-6 rounded bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors cursor-pointer"
+			aria-label="Remove parameter"
+		>
+			<X class="w-3.5 h-3.5 stroke-2" />
+		</button>
 	</div>
+
+	{#if isExpanded}
+		<div class="mt-4 pt-4 border-t border-gray-200 space-y-4">
+			<div>
+				<label class="block text-xs font-medium text-text-label mb-1" for="paramDesc-{index}">Description</label>
+				<textarea
+					id="paramDesc-{index}"
+					bind:value={parameter.description}
+					rows="2"
+					placeholder="Parameter description..."
+					class="w-full px-3 py-2 text-sm border border-gray-600 rounded bg-background focus:border-accent resize-none"
+				></textarea>
+			</div>
+
+			<div class="flex items-center gap-4">
+				<label class="inline-flex items-center">
+					<input
+						type="checkbox"
+						bind:checked={parameter.deprecated}
+						class="w-4 h-4 text-accent border-gray-600 rounded"
+					/>
+					<span class="ml-2 text-xs text-text-label">Deprecated</span>
+				</label>
+				<label class="inline-flex items-center">
+					<input
+						type="checkbox"
+						bind:checked={parameter.allowEmptyValue}
+						class="w-4 h-4 text-accent border-gray-600 rounded"
+					/>
+					<span class="ml-2 text-xs text-text-label">Allow Empty Value</span>
+				</label>
+			</div>
+
+			{#if parameter.example_str !== undefined}
+				<div>
+					<label class="block text-xs font-medium text-text-label mb-1" for="paramExample-{index}">Example</label>
+					<input
+						id="paramExample-{index}"
+						type="text"
+						bind:value={parameter.example_str}
+						placeholder="Example value..."
+						class="w-full px-3 py-2 text-sm border border-gray-600 rounded bg-background focus:border-accent"
+					/>
+				</div>
+			{/if}
+		</div>
+	{/if}
 </div>

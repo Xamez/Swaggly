@@ -21,18 +21,18 @@
 	}>();
 </script>
 
-<div class="col-span-2 mt-2 border-t pt-2">
-	<p class="text-text-label mb-1 text-sm font-medium">Array Item Definition:</p>
-	<div class="mb-2 flex items-center space-x-4">
+<div class="border-t border-white pt-3">
+	<p class="text-xs font-medium text-text-label mb-2">Array Item Definition</p>
+	<div class="mb-3 flex items-center space-x-4">
 		<label class="inline-flex items-center">
 			<input
 				type="radio"
 				name="items_definition_type"
 				value="simple"
 				bind:group={items_definition_type}
-				class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded-full border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
+				class="w-4 h-4 text-accent border-gray-600"
 			/>
-			<span class="ml-2 text-sm">Simple Type</span>
+			<span class="ml-2 text-xs text-text">Simple Type</span>
 		</label>
 		<label class="inline-flex items-center">
 			<input
@@ -40,34 +40,35 @@
 				name="items_definition_type"
 				value="reference"
 				bind:group={items_definition_type}
-				class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded-full border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
+				class="w-4 h-4 text-accent border-gray-600"
 			/>
-			<span class="ml-2 text-sm">Reference ($ref)</span>
+			<span class="ml-2 text-xs text-text">Reference ($ref)</span>
 		</label>
 	</div>
 
 	{#if items_definition_type === 'simple'}
-		<div>
-			<label for="itemType" class="text-text-label mb-0.5 block text-sm font-medium">Item Type</label>
+		<div class="mb-3">
+			<label class="block text-xs text-text-label mb-1" for="itemType">Item Type</label>
 			<select
 				id="itemType"
 				bind:value={items_simple_type}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder mt-1 block w-full appearance-none rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			>
-				<option value={undefined} class="text-text bg-background">Select type...</option>
+				<option value={undefined}>Select type...</option>
 				{#each availableTypes.filter((t) => t !== 'array' && t !== 'object') as typeOpt (typeOpt)}
-					<option value={typeOpt} class="text-text bg-background">{typeOpt}</option>
+					<option value={typeOpt}>{typeOpt}</option>
 				{/each}
 			</select>
 		</div>
 	{/if}
+	
 	{#if items_definition_type === 'reference'}
-		<div>
-			<label for="itemRefPath" class="text-text-label mb-0.5 block text-sm font-medium">Item Model Reference</label>
+		<div class="mb-3">
+			<label class="block text-xs text-text-label mb-1" for="itemRefPath">Item Model Reference</label>
 			<select
 				id="itemRefPath"
 				bind:value={items_ref_path}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			>
 				<option value={undefined}>Select Model...</option>
 				{#each existingModelNames as name (name)}
@@ -77,37 +78,38 @@
 		</div>
 	{/if}
 
-	<p class="text-text-label mt-2 mb-1 text-sm font-medium">Array Constraints:</p>
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+	<p class="text-xs font-medium text-text-label mb-2">Array Constraints</p>
+	<div class="grid grid-cols-2 gap-3 mb-3">
 		<div>
-			<label for="minItems" class="text-text-label mb-0.5 block text-sm font-medium">Min Items</label>
+			<label class="block text-xs text-text-label mb-1" for="minItems">Min Items</label>
 			<input
-				type="number"
 				id="minItems"
+				type="number"
 				bind:value={minItems}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder appearance-textfield mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
 				min="0"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			/>
 		</div>
 		<div>
-			<label for="maxItems" class="text-text-label mb-0.5 block text-sm font-medium">Max Items</label>
+			<label class="block text-xs text-text-label mb-1" for="maxItems">Max Items</label>
 			<input
-				type="number"
 				id="maxItems"
+				type="number"
 				bind:value={maxItems}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder appearance-textfield mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
 				min="0"
+				class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			/>
 		</div>
 	</div>
-	<div class="mt-2 flex items-center">
+	
+	<div class="flex items-center">
 		<label class="inline-flex items-center">
 			<input
 				type="checkbox"
 				bind:checked={uniqueItems}
-				class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
+				class="w-4 h-4 text-accent border-gray-600 rounded"
 			/>
-			<span class="text-text-label ml-2 text-sm">Unique Items</span>
+			<span class="ml-2 text-xs text-text-label">Unique Items</span>
 		</label>
 	</div>
 </div>

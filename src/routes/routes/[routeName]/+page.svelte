@@ -1,13 +1,13 @@
 <script lang="ts">
 	import RouteForm from '$lib/components/RouteForm.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { deleteRoute, routes } from '$lib/dataStore';
 	import type { Route } from '$lib/types';
 	import ConfirmationModal from '$lib/components/ConfirmationModal.svelte';
 	import { addNotification } from '$lib/notificationStore';
 
-	let routeName = $derived(decodeURIComponent($page.params.routeName));
+	let routeName = $derived(decodeURIComponent(page.params.routeName));
 	let routeToEdit = $derived($routes.find((r) => r.name.trim() === routeName.trim()));
 	let initialLoadDone = $state(false);
 	let showDeleteConfirmation = $state(false);

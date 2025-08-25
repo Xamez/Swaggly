@@ -1,13 +1,13 @@
 <script lang="ts">
 	import ModelForm from '$lib/components/ModelForm.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { deleteModel, models } from '$lib/dataStore';
 	import type { Model } from '$lib/types';
 	import ConfirmationModal from '$lib/components/ConfirmationModal.svelte';
 	import { addNotification } from '$lib/notificationStore';
 
-	let modelName = $derived($page.params.modelName);
+	let modelName = $derived(page.params.modelName);
 	let modelToEdit = $derived($models.find((m) => m.name === modelName));
 	let initialLoadDone = $state(false);
 	let showDeleteConfirmation = $state(false);

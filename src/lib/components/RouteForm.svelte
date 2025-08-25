@@ -118,7 +118,6 @@
 		{routeToEdit ? `Edit Route: ${routeToEdit.method.toUpperCase()} ${routeToEdit.path}` : 'Create New Route'}
 	</h2>
 	<form onsubmit={handleSubmit}>
-		<!-- Basic Route Info -->
 		<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 			<div>
 				<label for="routePath" class="text-text-label mb-0.5 block text-sm font-medium">Path</label>
@@ -174,40 +173,45 @@
 			/>
 		</div>
 
-		<!-- Parameters -->
 		<div class="mt-6">
-			<h3 class="text-text-heading mb-2 text-lg font-medium">Parameters</h3>
-			{#each parameters as parameter, index (index)}
-				<ParameterForm {parameter} {index} onRemove={removeParameter} />
-			{/each}
-			<button
-				type="button"
-				onclick={addParameter}
-				class="text-accent hover:text-accent-dark mb-4 cursor-pointer text-sm font-medium transition-colors duration-150"
-				>+ Add Parameter</button
-			>
+			<div class="flex items-center justify-between mb-3">
+				<h3 class="text-text-heading text-base font-medium">Parameters</h3>
+				<button
+					type="button"
+					onclick={addParameter}
+					class="px-3 py-1 text-xs bg-accent text-white rounded-md hover:bg-accent-dark transition-colors duration-150"
+					>+ Add Parameter</button
+				>
+			</div>
+			<div class="space-y-1">
+				{#each parameters as parameter, index (index)}
+					<ParameterForm {parameter} {index} onRemove={removeParameter} />
+				{/each}
+			</div>
 		</div>
 
-		<!-- Request Body -->
 		{#if showRequestBody}
 			<div class="mt-6">
-				<h3 class="text-text-heading mb-2 text-lg font-medium">Request Body</h3>
+				<h3 class="text-text-heading mb-3 text-base font-medium">Request Body</h3>
 				<RequestBodyForm bind:requestBody {existingModelNames} />
 			</div>
 		{/if}
 
-		<!-- Responses -->
 		<div class="mt-6">
-			<h3 class="text-text-heading mb-2 text-lg font-medium">Responses</h3>
-			{#each responses as response, index (index)}
-				<ResponseForm {response} {index} onRemove={removeResponse} {existingModelNames} />
-			{/each}
-			<button
-				type="button"
-				onclick={addResponse}
-				class="text-accent hover:text-accent-dark mb-4 cursor-pointer text-sm font-medium transition-colors duration-150"
-				>+ Add Response</button
-			>
+			<div class="flex items-center justify-between mb-3">
+				<h3 class="text-text-heading text-base font-medium">Responses</h3>
+				<button
+					type="button"
+					onclick={addResponse}
+					class="px-3 py-1 text-xs bg-accent text-white rounded-md hover:bg-accent-dark transition-colors duration-150"
+					>+ Add Response</button
+				>
+			</div>
+			<div class="space-y-1">
+				{#each responses as response, index (index)}
+					<ResponseForm {response} {index} onRemove={removeResponse} {existingModelNames} />
+				{/each}
+			</div>
 		</div>
 
 		<div class="mt-6 flex justify-end gap-x-4">

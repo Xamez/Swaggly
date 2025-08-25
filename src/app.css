@@ -5,10 +5,22 @@
 	--color-background: #0c0f10;
 	--color-background-darker: #040708;
 	--color-text: #edf5f7;
+	--color-text-label: #edf5f7;
+	--color-text-heading: #edf5f7;
+	--color-text-placeholder: #6b7280;
+	--color-border: #4b5563;
 	--color-secondary: #2e6876;
+	--color-secondary-dark: #1e4a54;
 	--color-accent: #5fb6cb;
+	--color-accent-dark: #4a9bb0;
+	--color-danger: #dc2626;
+	--color-danger-dark: #b91c1c;
 }
 
 * {
 	font-family: 'Inter', sans-serif;
+}
+
+input, textarea, select, button {
+	outline: none;
 }

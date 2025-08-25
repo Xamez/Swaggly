@@ -1,44 +1,37 @@
 <script lang="ts">
 	import type { RequestBodySchemaForForm } from '$lib/schemaDefinitions';
 	import { availableMediaTypes, availableTypes } from '$lib/types';
+	import { ChevronDown } from '@lucide/svelte';
 
 	let { requestBody = $bindable(), existingModelNames } = $props<{
 		requestBody: RequestBodySchemaForForm;
 		existingModelNames: string[];
 	}>();
+
+	let isExpanded = $state(false);
+	
+	function toggleExpanded() {
+		isExpanded = !isExpanded;
+	}
 </script>
 
-<div class="mb-4 rounded-lg border border-white p-4 shadow">
-	<h4 class="mb-2 font-semibold">Request Body</h4>
+<div class="mb-4 rounded-lg border border-border bg-background p-3 shadow-sm">
+	<div class="flex items-center gap-3">
+		<button
+			type="button"
+			onclick={toggleExpanded}
+			class="flex-shrink-0 w-6 h-6 rounded bg-background border border-gray-600 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer"
+			title="Toggle details"
+		>
+			<ChevronDown class="w-3.5 h-3.5 transition-transform duration-200 stroke-2 text-text-label {isExpanded ? 'rotate-180' : ''}" />
+		</button>
 
-	<div class="mb-3">
-		<label for="reqBodyDesc" class="text-text-label mb-0.5 block text-sm font-medium">Description</label>
-		<textarea
-			id="reqBodyDesc"
-			bind:value={requestBody.description}
-			rows="2"
-			class="border-border focus:ring-accent focus:border-accent bg-background text-text placeholder-text-placeholder mt-1 block min-h-[40px] w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
-		></textarea>
-	</div>
+		<span class="font-medium text-sm text-gray-900">Request Body</span>
 
-	<div class="mb-4">
-		<label class="inline-flex items-center">
-			<input
-				type="checkbox"
-				bind:checked={requestBody.required}
-				class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
-			/>
-			<span class="text-text-label ml-2 text-sm">Required</span>
-		</label>
-	</div>
-
-	<div class="grid grid-cols-1 gap-4 border-t pt-4 md:grid-cols-1">
-		<div>
-			<label for="reqBodyMediaType" class="text-text-label mb-0.5 block text-sm font-medium">Content Media Type</label>
+		<div class="w-32">
 			<select
-				id="reqBodyMediaType"
 				bind:value={requestBody.content_media_type}
-				class="border-border focus:ring-accent focus:border-accent bg-background text-text mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+				class="w-full px-2 py-1 text-xs border border-gray-600 rounded bg-background focus:border-accent"
 			>
 				{#each availableMediaTypes as mediaType (mediaType)}
 					<option value={mediaType}>{mediaType}</option>
@@ -46,59 +39,108 @@
 			</select>
 		</div>
 
-		<div class="col-span-2 mt-2 border-t pt-2">
-			<p class="text-text-label mb-1 text-sm font-medium">Content Schema Definition:</p>
-			<div class="mb-2 flex items-center space-x-4">
-				<label class="inline-flex items-center">
-					<input
-						type="radio"
-						name="content_schema_definition_type"
-						value="simple"
-						bind:group={requestBody.content_schema_definition_type}
-						class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded-full border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
-					/>
-					<span class="ml-2 text-sm">Simple Type</span>
-				</label>
-				<label class="inline-flex items-center">
-					<input
-						type="radio"
-						name="content_schema_definition_type"
-						value="reference"
-						bind:group={requestBody.content_schema_definition_type}
-						class="text-accent focus:border-accent focus:ring-accent focus:ring-opacity-50 h-4 w-4 rounded-full border-gray-300 shadow-sm focus:ring focus:ring-offset-0"
-					/>
-					<span class="ml-2 text-sm">Reference ($ref)</span>
-				</label>
-			</div>
+		<div class="w-24">
 			{#if requestBody.content_schema_definition_type === 'simple'}
-				<div>
-					<label for="reqBodySchemaType" class="text-text-label mb-0.5 block text-sm font-medium">Schema Type</label>
-					<select
-						id="reqBodySchemaType"
-						bind:value={requestBody.content_schema_simple_type}
-						class="border-border focus:ring-accent focus:border-accent bg-background text-text mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
-					>
-						{#each availableTypes as typeOpt (typeOpt)}
-							<option value={typeOpt}>{typeOpt}</option>
-						{/each}
-					</select>
-				</div>
-			{/if}
-			{#if requestBody.content_schema_definition_type === 'reference'}
-				<div>
-					<label for="reqBodyRefPath" class="text-text-label mb-0.5 block text-sm font-medium">Model Reference</label>
-					<select
-						id="reqBodyRefPath"
-						bind:value={requestBody.content_schema_ref_path}
-						class="border-border focus:ring-accent focus:border-accent bg-background text-text mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
-					>
-						<option value={undefined}>Select Model...</option>
-						{#each existingModelNames as name (name)}
-							<option value="#/components/schemas/{name}">{name}</option>
-						{/each}
-					</select>
-				</div>
+				<select
+					bind:value={requestBody.content_schema_simple_type}
+					class="w-full px-2 py-1 text-xs border border-gray-600 rounded bg-background focus:border-accent"
+				>
+					{#each availableTypes as typeOpt (typeOpt)}
+						<option value={typeOpt}>{typeOpt}</option>
+					{/each}
+				</select>
+			{:else}
+				<select
+					bind:value={requestBody.content_schema_ref_path}
+					class="w-full px-2 py-1 text-xs border border-gray-600 rounded bg-background focus:border-accent"
+				>
+					<option value={undefined}>Select...</option>
+					{#each existingModelNames as name (name)}
+						<option value="#/components/schemas/{name}">{name}</option>
+					{/each}
+				</select>
 			{/if}
 		</div>
+
+		<label class="flex items-center text-xs">
+			<input
+				type="checkbox"
+				bind:checked={requestBody.required}
+				class="w-4 h-4 text-accent border-gray-600 rounded"
+			/>
+			<span class="ml-1.5 text-text-label">Required</span>
+		</label>
 	</div>
+
+	{#if isExpanded}
+		<div class="mt-4 pt-4 border-t border-white space-y-4">
+			<div>
+				<label for="request-body-description" class="block text-xs font-medium text-text-label mb-1">Description</label>
+				<textarea
+					id="request-body-description"
+					bind:value={requestBody.description}
+					rows="2"
+					placeholder="Request body description..."
+					class="w-full px-3 py-2 text-sm border border-gray-600 rounded bg-background focus:border-accent resize-none"
+				></textarea>
+			</div>
+
+			<div class="space-y-3">
+				<p class="text-xs font-medium text-text-label">Schema Definition Type</p>
+				<div class="flex items-center space-x-4">
+					<label class="inline-flex items-center">
+						<input
+							type="radio"
+							name="content_schema_definition_type"
+							value="simple"
+							bind:group={requestBody.content_schema_definition_type}
+							class="w-4 h-4 text-accent border-gray-600"
+						/>
+						<span class="ml-2 text-xs text-text">Simple Type</span>
+					</label>
+					<label class="inline-flex items-center">
+						<input
+							type="radio"
+							name="content_schema_definition_type"
+							value="reference"
+							bind:group={requestBody.content_schema_definition_type}
+							class="w-4 h-4 text-accent border-gray-600"
+						/>
+						<span class="ml-2 text-xs text-text">Reference ($ref)</span>
+					</label>
+				</div>
+
+				{#if requestBody.content_schema_definition_type === 'simple'}
+					<div>
+						<label for="request-body-schema-type" class="block text-xs text-text-label mb-1">Schema Type</label>
+						<select
+							id="request-body-schema-type"
+							bind:value={requestBody.content_schema_simple_type}
+							class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
+						>
+							{#each availableTypes as typeOpt (typeOpt)}
+								<option value={typeOpt}>{typeOpt}</option>
+							{/each}
+						</select>
+					</div>
+				{/if}
+
+				{#if requestBody.content_schema_definition_type === 'reference'}
+					<div>
+						<label for="request-body-model-ref" class="block text-xs text-text-label mb-1">Model Reference</label>
+						<select
+							id="request-body-model-ref"
+							bind:value={requestBody.content_schema_ref_path}
+							class="w-full px-2 py-1 text-sm border border-gray-600 rounded bg-background focus:border-accent"
+						>
+							<option value={undefined}>Select Model...</option>
+							{#each existingModelNames as name (name)}
+								<option value="#/components/schemas/{name}">{name}</option>
+							{/each}
+						</select>
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
 </div>

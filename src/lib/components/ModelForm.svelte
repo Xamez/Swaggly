@@ -74,7 +74,7 @@
 				id="modelName"
 				bind:value={modelName}
 				required
-				class="bg-background text-text placeholder-text-placeholder mt-1 block w-full rounded-md border px-3 py-2 sm:text-sm"
+				class="mt-1 block w-full px-3 py-2 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			/>
 		</div>
 		<div class="mb-4">
@@ -83,26 +83,30 @@
 				id="modelDescription"
 				bind:value={modelDescription}
 				rows="3"
-				class="bg-background text-text placeholder-text-placeholder mt-1 block min-h-[40px] w-full rounded-md border px-3 py-2 sm:text-sm"
+				class="mt-1 block min-h-[40px] w-full px-3 py-2 text-sm border border-gray-600 rounded bg-background focus:border-accent"
 			></textarea>
 		</div>
 
-		<h3 class="text-text-heading mb-2 text-lg">Properties</h3>
-		{#each properties as property, index (index)}
-			<PropertyForm {property} {index} {existingModelNames} onRemove={removeProperty} />
-		{/each}
-		<button
-			type="button"
-			onclick={addProperty}
-			class="text-accent hover:text-accent-dark mb-4 cursor-pointer text-sm transition-colors duration-150">+ Add Property</button
-		>
+		<div class="flex items-center justify-between mb-3">
+			<h3 class="text-text-heading text-base">Properties</h3>
+			<button
+				type="button"
+				onclick={addProperty}
+				class="px-3 py-1 text-xs bg-accent text-white rounded-md hover:bg-accent-dark transition-colors duration-150 cursor-pointer">+ Add Property</button
+			>
+		</div>
+		<div class="space-y-1">
+			{#each properties as property, index (index)}
+				<PropertyForm {property} {index} {existingModelNames} onRemove={removeProperty} />
+			{/each}
+		</div>
 
 		<div class="mt-6 flex justify-end gap-x-4">
 			{#if modelToEdit}
 				<button
 					type="button"
 					onclick={onDelete}
-					class="bg-danger hover:bg-danger-dark cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:outline-none"
+					class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 cursor-pointer rounded-md px-6 py-2 transition-colors duration-150 focus:outline-none"
 				>
 					Delete
 				</button>
