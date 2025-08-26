@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { addModel, models, updateModel } from '$lib/dataStore';
+	import { addNotification } from '$lib/notificationStore';
 	import { initialPropertySchema, type PropertySchemaForForm } from '$lib/schemaDefinitions';
 	import { transformPropertyForPayload, transformSchemaToForm } from '$lib/schemaUtils';
 	import type { Model, ModelProperty } from '$lib/types';
+	import { AlertTriangle } from '@lucide/svelte';
 	import PropertyForm from './PropertyForm.svelte';
 
 	let {
@@ -26,7 +28,6 @@
 				schema: transformSchemaToForm(p.schema)
 			}));
 		} else {
-			// Reset for 'create' mode
 			modelName = '';
 			modelDescription = '';
 			properties = [{ name: '', schema: { ...initialPropertySchema, type: 'string' } }];
@@ -34,6 +35,40 @@
 	});
 
 	let existingModelNames = $derived($models.map((m) => m.name));
+
+	let validationErrors = $derived.by(() => {
+		const errors: string[] = [];
+		const trimmedModelName = modelName.trim();
+		
+		if (!trimmedModelName) {
+			errors.push('Model name cannot be empty.');
+		}
+
+		if (!modelToEdit && existingModelNames.includes(trimmedModelName)) {
+			errors.push(`A model with the name "${trimmedModelName}" already exists.`);
+		}
+
+		const propertyNames = new Set();
+		for (let i = 0; i < properties.length; i++) {
+			const property = properties[i];
+			const trimmedPropertyName = property.name?.trim() || '';
+			
+			if (!trimmedPropertyName) {
+				errors.push(`Property at position ${i + 1} cannot have an empty name.`);
+				continue;
+			}
+			
+			if (propertyNames.has(trimmedPropertyName)) {
+				errors.push(`Duplicate property name "${trimmedPropertyName}" found.`);
+			} else {
+				propertyNames.add(trimmedPropertyName);
+			}
+		}
+
+		return errors;
+	});
+
+	let hasValidationErrors = $derived(validationErrors.length > 0);
 
 	function addProperty() {
 		properties.push({ name: '', schema: { ...initialPropertySchema, type: 'string' } });
@@ -44,22 +79,36 @@
 	}
 
 	function handleSubmit() {
+		if (hasValidationErrors) {
+			return;
+		}
+
+		const trimmedModelName = modelName.trim();
+		const validProperties = properties.map(property => ({
+			...property,
+			name: property.name?.trim() || ''
+		}));
+
 		const modelDataPayload: Model = {
-			name: modelName,
+			name: trimmedModelName,
 			description: modelDescription,
-			properties: properties.map(transformPropertyForPayload)
+			properties: validProperties.map(transformPropertyForPayload)
 		};
 
 		if (modelToEdit) {
-			const updatedModelData: Model = { ...modelDataPayload, name: modelName };
+			const updatedModelData: Model = { ...modelDataPayload };
 			updateModel(modelToEdit.name, updatedModelData);
 			onSave(updatedModelData);
 		} else {
-			const newModel = addModel(modelDataPayload);
-			onSave(newModel);
-			modelName = '';
-			modelDescription = '';
-			properties = [{ name: '', schema: { ...initialPropertySchema, type: 'string' } }];
+			const result = addModel(modelDataPayload);
+			if (result.success && result.model) {
+				onSave(result.model);
+				modelName = '';
+				modelDescription = '';
+				properties = [{ name: '', schema: { ...initialPropertySchema, type: 'string' } }];
+			} else {
+				addNotification(result.message || 'Failed to create model', 'error');
+			}
 		}
 	}
 </script>
@@ -101,6 +150,22 @@
 			{/each}
 		</div>
 
+		{#if hasValidationErrors}
+			<div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+				<div class="flex items-start gap-3">
+					<AlertTriangle class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+					<div>
+						<h4 class="text-sm font-medium text-red-800 mb-2">Please fix the following issues:</h4>
+						<ul class="text-sm text-red-700 space-y-1">
+							{#each validationErrors as error}
+								<li>• {error}</li>
+							{/each}
+						</ul>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		<div class="mt-6 flex justify-end gap-x-4">
 			{#if modelToEdit}
 				<button
@@ -113,7 +178,8 @@
 			{/if}
 			<button
 				type="submit"
-				class="bg-accent hover:bg-secondary cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:outline-none"
+				disabled={hasValidationErrors}
+				class="bg-accent hover:bg-secondary cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent"
 			>
 				{modelToEdit ? 'Save Changes' : 'Create Model'}
 			</button>

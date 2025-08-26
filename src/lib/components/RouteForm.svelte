@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { addRoute, models, updateRoute } from '$lib/dataStore';
+	import { addNotification } from '$lib/notificationStore';
 	import {
 		initialParameterSchema,
 		initialRequestBodySchema,
@@ -18,6 +19,7 @@
 		transformResponseForPayload
 	} from '$lib/schemaUtils';
 	import { availableMethods, type Method, type Route } from '$lib/types';
+	import { AlertTriangle } from '@lucide/svelte';
 	import ParameterForm from './ParameterForm.svelte';
 	import RequestBodyForm from './RequestBodyForm.svelte';
 	import ResponseForm from './ResponseForm.svelte';
@@ -86,7 +88,62 @@
 		}
 	});
 
+	let validationErrors = $derived.by(() => {
+		const errors: string[] = [];
+		const trimmedPath = routePath.trim();
+		
+		if (!trimmedPath) {
+			errors.push('Route path cannot be empty.');
+		} else if (!trimmedPath.startsWith('/')) {
+			errors.push('Route path must start with a forward slash (/).');
+		}
+
+		const pathParamRegex = /\{([^}]+)\}/g;
+		const pathParamMatches = [...trimmedPath.matchAll(pathParamRegex)];
+		const pathParamNames = pathParamMatches.map(match => match[1]);
+
+		for (let i = 0; i < parameters.length; i++) {
+			const parameter = parameters[i];
+			const trimmedParamName = parameter.name.trim();
+			
+			if (!trimmedParamName) {
+				errors.push(`Parameter at position ${i + 1} cannot have an empty name.`);
+				continue;
+			}
+
+			const duplicateIndex = parameters.findIndex((p, idx) => idx !== i && p.name.trim() === trimmedParamName);
+			if (duplicateIndex !== -1) {
+				errors.push(`Duplicate parameter name "${trimmedParamName}" found.`);
+			}
+
+			if (parameter.in === 'path') {
+				if (!pathParamNames.includes(trimmedParamName)) {
+					errors.push(`Path parameter "${trimmedParamName}" must have a corresponding {${trimmedParamName}} placeholder in the path.`);
+				}
+				
+				if (!parameter.required) {
+					errors.push(`Path parameter "${trimmedParamName}" must be marked as required.`);
+				}
+			}
+		}
+
+		const parameterNames = parameters.filter(p => p.in === 'path').map(p => p.name.trim());
+		for (const pathParamName of pathParamNames) {
+			if (!parameterNames.includes(pathParamName)) {
+				errors.push(`Path contains parameter "{${pathParamName}}" but no corresponding path parameter is defined.`);
+			}
+		}
+
+		return errors;
+	});
+
+	let hasValidationErrors = $derived(validationErrors.length > 0);
+
 	function handleSubmit() {
+		if (hasValidationErrors) {
+			return;
+		}
+
 		const trimmedPath = routePath.trim();
 		const routeName = `${routeMethod.toUpperCase()} ${trimmedPath}`;
 
@@ -107,8 +164,12 @@
 			updateRoute(updatedRouteData);
 			onSave(updatedRouteData);
 		} else {
-			const newRoute = addRoute(routeDataPayload as Route);
-			onSave(newRoute);
+			const result = addRoute(routeDataPayload as Route);
+			if (result.success && result.route) {
+				onSave(result.route);
+			} else {
+				addNotification(result.message || 'Failed to create route', 'error');
+			}
 		}
 	}
 </script>
@@ -185,7 +246,7 @@
 			</div>
 			<div class="space-y-1">
 				{#each parameters as parameter, index (index)}
-					<ParameterForm {parameter} {index} onRemove={removeParameter} />
+					<ParameterForm {parameter} {index} onRemove={removeParameter} routePath={routePath} />
 				{/each}
 			</div>
 		</div>
@@ -214,6 +275,22 @@
 			</div>
 		</div>
 
+		{#if hasValidationErrors}
+			<div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+				<div class="flex items-start gap-3">
+					<AlertTriangle class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+					<div>
+						<h4 class="text-sm font-medium text-red-800 mb-2">Please fix the following issues:</h4>
+						<ul class="text-sm text-red-700 space-y-1">
+							{#each validationErrors as error}
+								<li>• {error}</li>
+							{/each}
+						</ul>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		<div class="mt-6 flex justify-end gap-x-4">
 			{#if routeToEdit}
 				<button
@@ -226,7 +303,8 @@
 			{/if}
 			<button
 				type="submit"
-				class="bg-accent hover:bg-accent-dark focus:ring-accent-dark cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+				disabled={hasValidationErrors}
+				class="bg-accent hover:bg-accent-dark focus:ring-accent-dark cursor-pointer rounded-md px-6 py-2 text-white transition-colors duration-150 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent"
 			>
 				{routeToEdit ? 'Save Changes' : 'Create Route'}
 			</button>

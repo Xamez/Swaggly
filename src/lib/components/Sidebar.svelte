@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { models, routes } from '$lib/dataStore';
+	import { resetStore } from '$lib/swaggerGenerator';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import FileStack from '@lucide/svelte/icons/file-stack';
 	import Route from '@lucide/svelte/icons/route';
 	import SquarePlus from '@lucide/svelte/icons/square-plus';
+	import Eye from '@lucide/svelte/icons/eye';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
 
 	let areModelsOpen = $state(false);
 	let areRoutesOpen = $state(false);
@@ -18,10 +22,15 @@
 	function toggleRoutesDropdown() {
 		areRoutesOpen = !areRoutesOpen;
 	}
+
+	function resetStoreAndRedirect() {
+		resetStore();
+		goto('/');
+	}
 </script>
 
 <div class="bg-background text-text m-4 flex w-[15vw] min-w-[250px] flex-col overflow-y-auto rounded-xl p-4 font-semibold">
-	<ul class="space-y-2">
+	<ul class="space-y-2 flex-1">
 		<li>
 			<button
 				onclick={toggleModelsDropdown}
@@ -47,7 +56,7 @@
 							</a>
 						</li>
 					{:else}
-						{#each $models as model (model.name)}
+						{#each $models as model, index (model.name + '-' + index)}
 							<li>
 								<a
 									href="{base}/models/{model.name}"
@@ -119,6 +128,16 @@
 			{/if}
 		</li>
 	</ul>
+
+	<div class="mt-4 pt-4 border-t border-gray-600">
+		<button
+			onclick={resetStoreAndRedirect}
+			class="text-red-400 hover:text-red-300 flex w-full items-center py-2 text-sm cursor-pointer"
+		>
+			<Trash2 class="mr-2 inline-block" />
+			Clear All Data
+		</button>
+	</div>
 </div>
 
 <style>

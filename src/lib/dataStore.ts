@@ -41,15 +41,34 @@ export const appDataStore = createPersistentStore<AppData>(localStorageKey, init
 export const models = derived(appDataStore, ($data) => $data.models);
 export const routes = derived(appDataStore, ($data) => $data.routes);
 
-export function addModel(newModelData: Model): Model {
-	const newModel: Model = { ...newModelData };
+export function addModel(newModelData: Model): { success: boolean; model?: Model; message?: string } {
+	const trimmedName = newModelData.name.trim();
+	
+	if (!trimmedName) {
+		return {
+			success: false,
+			message: 'Model name cannot be empty.'
+		};
+	}
+
+	const currentData = get(appDataStore);
+	const existingModel = currentData.models.find((m) => m.name === trimmedName);
+	
+	if (existingModel) {
+		return {
+			success: false,
+			message: `A model with the name "${trimmedName}" already exists.`
+		};
+	}
+
+	const newModel: Model = { ...newModelData, name: trimmedName };
 	appDataStore.update((data) => {
 		return {
 			...data,
 			models: [...data.models, newModel]
 		};
 	});
-	return newModel;
+	return { success: true, model: newModel };
 }
 
 export function updateModel(originalName: string, updatedModel: Model): void {
@@ -137,15 +156,42 @@ export function deleteModel(modelName: string): { success: boolean; message?: st
 	return { success: true };
 }
 
-export function addRoute(newRouteData: Route): Route {
-	const newRoute: Route = { ...newRouteData };
+export function addRoute(newRouteData: Route): { success: boolean; route?: Route; message?: string } {
+	const trimmedName = newRouteData.name.trim();
+	const trimmedPath = newRouteData.path.trim();
+	
+	if (!trimmedName) {
+		return {
+			success: false,
+			message: 'Route name cannot be empty.'
+		};
+	}
+
+	if (!trimmedPath) {
+		return {
+			success: false,
+			message: 'Route path cannot be empty.'
+		};
+	}
+
+	const currentData = get(appDataStore);
+	const existingRoute = currentData.routes.find((r) => r.name === trimmedName);
+	
+	if (existingRoute) {
+		return {
+			success: false,
+			message: `A route with the name "${trimmedName}" already exists.`
+		};
+	}
+
+	const newRoute: Route = { ...newRouteData, name: trimmedName, path: trimmedPath };
 	appDataStore.update((data) => {
 		return {
 			...data,
 			routes: [...data.routes, newRoute]
 		};
 	});
-	return newRoute;
+	return { success: true, route: newRoute };
 }
 
 export function updateRoute(updatedRoute: Route): void {

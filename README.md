@@ -25,6 +25,3 @@ Just open the link above in your browser to start visually designing and editing
 ## Contributing & Roadmap
 
 I'm open to Pull Requests! If you have ideas, improvements, or bug fixes, feel free to open a PR or issue.
-
-### Planned Features
-- **Swagger Preview:** Soon you'll be able to preview your OpenAPI/Swagger schema directly in the app.

@@ -1,16 +1,18 @@
 <script lang="ts">
 	import type { ParameterSchemaForForm } from '$lib/schemaDefinitions';
 	import { availableParameterIns, availableTypes } from '$lib/types';
-	import { ChevronDown, X } from '@lucide/svelte';
+	import { ChevronDown, X, AlertTriangle } from '@lucide/svelte';
 
 	let {
 		parameter,
 		index,
-		onRemove
+		onRemove,
+		routePath = ''
 	}: {
 		parameter: ParameterSchemaForForm;
 		index: number;
 		onRemove: (index: number) => void;
+		routePath?: string;
 	} = $props();
 
 	let isExpanded = $state(false);
@@ -18,9 +20,41 @@
 	function toggleExpanded() {
 		isExpanded = !isExpanded;
 	}
+
+	let validationWarnings = $derived.by(() => {
+		const warnings: string[] = [];
+		
+		if (parameter.in === 'path') {
+			if (routePath && !routePath.includes(`{${parameter.name.trim()}}`)) {
+				warnings.push(`Path parameter "${parameter.name}" must have corresponding {${parameter.name}} in the route path.`);
+			}
+			
+			if (!parameter.required) {
+				warnings.push('Path parameters must be marked as required.');
+			}
+		}
+		
+		return warnings;
+	});
+
+	$effect(() => {
+		if (parameter.in === 'path' && !parameter.required) {
+			parameter.required = true;
+		}
+	});
 </script>
 
-<div class="mb-2 rounded-lg border border-gray-200 bg-background p-3">
+<div class="mb-2 rounded-lg border {validationWarnings.length > 0 ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-background'} p-3">
+	{#if validationWarnings.length > 0}
+		<div class="mb-2 flex items-start gap-2 p-2 bg-orange-100 rounded border border-orange-200">
+			<AlertTriangle class="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+			<div class="text-xs text-orange-800">
+				{#each validationWarnings as warning}
+					<div>{warning}</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 	<div class="flex items-center gap-3">
 		<button
 			type="button"
@@ -67,19 +101,12 @@
 			<input
 				type="checkbox"
 				bind:checked={parameter.required}
-				class="w-4 h-4 text-accent border-gray-600 rounded"
+				disabled={parameter.in === 'path'}
+				class="w-4 h-4 text-accent border-gray-600 rounded {parameter.in === 'path' ? 'opacity-50 cursor-not-allowed' : ''}"
 			/>
-			<span class="ml-1.5 text-text-label">Required</span>
+			<span class="ml-1.5 text-text-label {parameter.in === 'path' ? 'opacity-50' : ''}">Required{parameter.in === 'path' ? ' (auto)' : ''}</span>
 		</label>
 
-		<label class="flex items-center text-xs">
-			<input
-				type="checkbox"
-				bind:checked={parameter.schema_nullable}
-				class="w-4 h-4 text-accent border-gray-600 rounded"
-			/>
-			<span class="ml-1.5 text-text-label">Nullable</span>
-		</label>
 		<button
 			type="button"
 			onclick={() => onRemove(index)}

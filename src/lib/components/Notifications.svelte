@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { notifications, removeNotification } from '$lib/notificationStore';
 	import { fly } from 'svelte/transition';
+	import { X } from '@lucide/svelte';
 
 	const typeClasses = {
 		info: 'bg-blue-500',
@@ -27,7 +28,7 @@
 					aria-label="Close notification"
 					class="cursor-pointer border-none bg-transparent text-base text-white opacity-70 transition-opacity duration-200 hover:opacity-100"
 				>
-					X
+					<X size={16} />
 				</button>
 			</div>
 		{/each}

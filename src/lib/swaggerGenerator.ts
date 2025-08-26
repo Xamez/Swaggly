@@ -1,5 +1,5 @@
 import { addNotification } from '$lib/notificationStore';
-import { dump, load } from 'js-yaml';
+import { load, dump } from 'js-yaml';
 import { get } from 'svelte/store';
 import { appDataStore } from './dataStore';
 import type { AppData, Response as AppResponse, Method, Model, Parameter, RequestBody, Route, SchemaObject } from './types';
@@ -171,18 +171,22 @@ function convertSwaggerToAppData(swaggerData: SwaggerDefinition): AppData {
 	return appData;
 }
 
-export function generateAndDownloadSwagger() {
-	const swaggerJson = buildSwaggerJson();
-	const swaggerYaml = dump(swaggerJson);
-	const swaggerBlob = new Blob([swaggerYaml], { type: 'text/yaml' });
-	const url = URL.createObjectURL(swaggerBlob);
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = 'swagger.yaml';
-	document.body.appendChild(a);
-	a.click();
-	document.body.removeChild(a);
-	URL.revokeObjectURL(url);
+export function generateAndDownloadSwagger(indent: number = 4) {
+	try {
+		const swaggerJsonString = getSwaggerJsonString(indent);
+		const swaggerBlob = new Blob([swaggerJsonString], { type: 'application/json' });
+		const url = URL.createObjectURL(swaggerBlob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'swagger.json';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+		addNotification('Swagger specification downloaded successfully.', 'success');
+	} catch (error) {
+		addNotification('Error generating Swagger specification: ' + (error instanceof Error ? error.message : 'Unknown error'), 'error');
+	}
 }
 
 export function importSwagger() {
@@ -226,4 +230,18 @@ export function resetStore() {
 		routes: []
 	});
 	addNotification('Local data cleared.', 'info');
+}
+
+export function getSwaggerJson(): SwaggerDefinition {
+	return buildSwaggerJson();
+}
+
+export function getSwaggerJsonString(indent: number = 4): string {
+	const swaggerJson = buildSwaggerJson();
+	return JSON.stringify(swaggerJson, null, indent);
+}
+
+export function getSwaggerYamlString(): string {
+	const swaggerJson = buildSwaggerJson();
+	return dump(swaggerJson, { indent: 2, lineWidth: 120 });
 }
